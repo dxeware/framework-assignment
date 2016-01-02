@@ -28,19 +28,22 @@ function sendResponse(res, status, data) {
       'Content-Type': 'text/html'
   });
   console.log(data);
-  if (typeof data === 'string') {
-    res.write(data);
-  } else {
-    res.write(JSON.stringify(data));
+  if (data !== undefined) {
+    if (typeof data === 'string') {
+      res.write(data);
+    } else {
+      res.write(JSON.stringify(data));
+    }
   }
   res.end();
 }
 
 function handleGET(req, res, route, match) {
-  console.log('MATCH[0]', match[0], 'ROUTE', route);
-  if (match[0] === route) {
+  if (match === null) {
+    sendResponse(res, 404);
+  } else if (match[0] === route) {
     console.log('entering match 0');
-     sendResponse(res, 200, dawgs.pack);
+    sendResponse(res, 200, dawgs.pack);
   } else if (match[1] !== undefined) { //URL === /dawgs with name attached
     var index = dawgs.findDawg(match[2]);
     if (-1 === index) {
@@ -48,10 +51,9 @@ function handleGET(req, res, route, match) {
     } else {
       sendResponse(res, 200, dawgs.pack[index]);
     }
-  } else {
-      sendResponse(res, 404);
-  }
+  } 
 }
+
 function handlePOST(req, res, route, match) {
   console.log('MATCH[0]', match[0], 'ROUTE', route);
   if (match[0] === route) {
@@ -68,6 +70,50 @@ function handlePOST(req, res, route, match) {
   }
 }
 
+function handlePUT(req, res, route, match) {
+  console.log('MATCH[0]', match[0], 'ROUTE', route);
+  if (match === null) {
+    sendResponse(res, 404);
+  } else if (match[0] === route) {
+    console.log('entering PUT match 0');
+    sendResponse(res, 404);
+  } else if (match[1] !== undefined) { //URL === /dawgs with name attached
+    var body = '';
+    req.on('data', function (chunk) {
+      body += chunk.toString();
+    });
+    req.on('end', function() {
+      console.log('BODY', body);
+      if (body !== '') { 
+        var updated = dawgs.updateDawg(JSON.parse(body));
+        if (-1 === updated) {
+          sendResponse(res, 200, 'NO DAWG');
+        } else {
+          sendResponse(res, 200, updated);
+        } 
+      } else {
+          sendResponse(res, 404);
+      }
+    }); 
+  }
+}
+
+function handleDELETE(req, res, route, match) {
+  if (match === null) {
+    sendResponse(res, 404);
+  } else if (match[0] === route) {
+    console.log('entering match 0');
+    sendResponse(res, 404);
+  } else if (match[1] !== undefined) { //URL === /dawgs with name attached
+    var removed = dawgs.deleteDawg(match[2]);
+    if (-1 === removed) {
+      sendResponse(res, 200, 'NO DAWG');
+    } else {
+      sendResponse(res, 200, removed[0]);
+    }
+  } 
+}
+
 function processRoute(req, res, route) {
 
   var re = new RegExp("^" + route + "?(\/)?(.+)");
@@ -76,11 +122,28 @@ function processRoute(req, res, route) {
   console.log('REGEX', re);
   //URL === /dawgs with no name attached 
 
-  if (req.method === 'GET') {
-    handleGET(req, res, route, match); 
-  } else if (req.method == 'POST') {
-    handlePOST(req, res, route, match); 
+  // if (req.method === 'GET') {
+  //   handleGET(req, res, route, match); 
+  // } else if (req.method == 'POST') {
+  //   handlePOST(req, res, route, match); 
+  // }
+  switch (req.method) {
+    case 'GET':
+      handleGET(req, res, route, match); 
+      break;
+    case 'POST':
+      handlePOST(req, res, route, match); 
+      break;
+    case 'PUT':
+      handlePUT(req, res, route, match);
+      break;
+    case 'DELETE':
+      handleDELETE(req, res, route, match);
+      break;
+    default:
+      sendResponse(res, 404);
   }
+
   // if ((match === null) && (req.url === '/dawgs')) {
 
   //   if (req.method === 'GET') {
@@ -125,7 +188,7 @@ function processRoute(req, res, route) {
 }
 
 var server = http.createServer(function (req, res) {
-  processRoute(req, res, '/dawgs', sendResponse);
+  processRoute(req, res, dawgs.route, sendResponse);
 });
 
 server.listen(3000, function () {
