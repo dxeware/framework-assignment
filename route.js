@@ -105,18 +105,5 @@ module.exports = {
       default:
         sendResponse(res, 404);
     }
-  }//,
-  // sendResponse: function(res, status, data) {
-  //   res.writeHead(status, {
-  //       'Content-Type': 'text/html'
-  //   });
-  //   if (data !== undefined) {
-  //     if (typeof data === 'string') {
-  //       res.write(data);
-  //     } else {
-  //       res.write(JSON.stringify(data));
-  //     }
-  //   }
-  //   res.end();
-  //}
-}
+  }
+};

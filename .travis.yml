@@ -1,0 +1,12 @@
+language: node_js
+node_js:
+  - "4.1"
+before_script:
+
+services:
+
+script: gulp
+
+cache:
+  directories:
+    - node_modules

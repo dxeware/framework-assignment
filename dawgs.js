@@ -1,7 +1,7 @@
 'use strict';
 
-function Dawgs() {
-  this.route = '/dawgs';
+function Dawgs(route) {
+  this.route = route;
   this.pack = [];
 
   this.addDawg = function(dawg) {
