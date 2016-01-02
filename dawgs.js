@@ -1,3 +1,5 @@
+'use strict';
+
 function Dawgs() {
   this.route = '/dawgs';
   this.pack = [];
@@ -6,9 +8,6 @@ function Dawgs() {
     this.pack.push(dawg);
   };
   this.findDawg = function(name) {
-    console.log('PACK = ', this.pack);
-    // return this.pack.findIndex(function(dawg) {
-    //   return dawg.name === name;
     return this.pack.findIndex(dawg => (dawg.name === name));
   };
   this.updateDawg = function(dawg) {
