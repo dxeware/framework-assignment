@@ -6,7 +6,7 @@ var jshint = require('gulp-jshint');
 var mocha = require('gulp-mocha');
 
 // Files we're concerned about
-var files = ['./**/*.js', '!./node_modules/**'];
+var files = ['./**/*.js', '!./node_modules/**', '!./test/**'];
 var testFiles = ['./test/*.js'];
 
 // task to run jshint
